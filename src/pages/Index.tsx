@@ -1,82 +1,117 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { MovieCard } from "@/components/MovieCard";
+import { MovieDetailsModal } from "@/components/MovieDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Award } from "lucide-react";
+import { Movie, MovieService } from "@/lib/movieService";
+import { MovieFilters } from "@/lib/types";
+import { MovieFilters as MovieFiltersComponent } from "@/components/MovieFilters";
+import { ApiTestButton } from "@/components/ApiTestButton";
 import heroImage from "@/assets/hero-cinema.jpg";
-
-// Mock data for featured movies
-const featuredMovies = [
-  {
-    title: "Dune: Part Two",
-    year: 2024,
-    genre: "Sci-Fi",
-    rating: 8.7,
-    userRating: 9,
-    poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop",
-    isLiked: true,
-    isBookmarked: false,
-  },
-  {
-    title: "Oppenheimer",
-    year: 2023,
-    genre: "Biography",
-    rating: 8.4,
-    userRating: 8,
-    poster: "https://images.unsplash.com/photo-1489599096494-2db61da42bc3?w=400&h=600&fit=crop",
-    isLiked: false,
-    isBookmarked: true,
-  },
-  {
-    title: "Everything Everywhere All at Once",
-    year: 2022,
-    genre: "Action",
-    rating: 7.8,
-    poster: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=600&fit=crop",
-    isLiked: true,
-    isBookmarked: false,
-  },
-  {
-    title: "The Batman",
-    year: 2022,
-    genre: "Action",
-    rating: 7.9,
-    poster: "https://images.unsplash.com/photo-1635863138275-d9864d171c5d?w=400&h=600&fit=crop",
-    isLiked: false,
-    isBookmarked: false,
-  },
-  {
-    title: "Top Gun: Maverick",
-    year: 2022,
-    genre: "Action",
-    rating: 8.2,
-    userRating: 9,
-    poster: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=600&fit=crop",
-    isLiked: true,
-    isBookmarked: true,
-  },
-  {
-    title: "Avatar: The Way of Water",
-    year: 2022,
-    genre: "Sci-Fi",
-    rating: 7.6,
-    poster: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=600&fit=crop",
-    isLiked: false,
-    isBookmarked: false,
-  },
-];
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Movie[]>([]);
+  const [featuredMovies, setFeaturedMovies] = useState<Movie[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filters, setFilters] = useState<MovieFilters>({});
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = (query: string) => {
+  // Load featured movies on component mount
+  useEffect(() => {
+    const loadFeaturedMovies = async () => {
+      try {
+        const movies = await MovieService.getTrendingMovies(6);
+        setFeaturedMovies(movies);
+      } catch (error) {
+        console.error('Error loading featured movies:', error);
+      }
+    };
+    loadFeaturedMovies();
+  }, []);
+
+  const handleSearch = async (query: string, searchFilters?: MovieFilters) => {
+    console.log('🔍 Starting search for:', query, 'with filters:', searchFilters || filters);
     setSearchQuery(query);
-    console.log("Searching for:", query);
+    
+    if (!query.trim()) {
+      console.log('⚠️ Empty query, clearing results');
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+    
+    setIsSearching(true);
+    
+    try {
+      console.log('📡 Calling MovieService.searchMovies...');
+      const results = await MovieService.searchMovies(query, searchFilters || filters);
+      console.log('✅ Search results:', results.length, 'movies found');
+      setSearchResults(results);
+    } catch (error) {
+      console.error('❌ Error searching movies:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleFilterClick = () => {
-    console.log("Filter clicked");
+    setIsFiltersOpen(true);
+  };
+
+  const handleFiltersChange = async (newFilters: MovieFilters) => {
+    setFilters(newFilters);
+    if (searchQuery) {
+      setIsSearching(true);
+      try {
+        const results = await MovieService.searchMovies(searchQuery, newFilters);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Error searching movies with filters:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  const handleMovieClick = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setIsModalOpen(true);
+  };
+
+  const handleLikeToggle = async (movieId: string) => {
+    // Refresh the movies to reflect the changes
+    try {
+      const movies = await MovieService.getTrendingMovies(6);
+      setFeaturedMovies(movies);
+      if (searchQuery) {
+        const results = await MovieService.searchMovies(searchQuery, filters);
+        setSearchResults(results);
+      }
+    } catch (error) {
+      console.error('Error refreshing movies after like toggle:', error);
+    }
+  };
+
+  const handleBookmarkToggle = async (movieId: string) => {
+    // Refresh the movies to reflect the changes
+    try {
+      const movies = await MovieService.getTrendingMovies(6);
+      setFeaturedMovies(movies);
+      if (searchQuery) {
+        const results = await MovieService.searchMovies(searchQuery, filters);
+        setSearchResults(results);
+      }
+    } catch (error) {
+      console.error('Error refreshing movies after bookmark toggle:', error);
+    }
   };
 
   return (
@@ -115,19 +150,28 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button size="lg" className="bg-gradient-primary hover:shadow-glow px-8 py-6 text-lg font-semibold">
+              <Button 
+                size="lg" 
+                className="bg-gradient-primary hover:shadow-glow px-8 py-6 text-lg font-semibold"
+                onClick={() => {
+                  const searchSection = document.querySelector('#search-section');
+                  searchSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
                 Start Rating Movies
               </Button>
-              <Button size="lg" variant="secondary" className="px-8 py-6 text-lg border-border bg-card hover:bg-card-hover">
-                Browse Collection
-              </Button>
+              <Link to="/discover">
+                <Button size="lg" variant="secondary" className="px-8 py-6 text-lg border-border bg-card hover:bg-card-hover">
+                  Browse Collection
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
       {/* Search Section */}
-      <section className="py-16 bg-card/30">
+      <section id="search-section" className="py-16 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Find Your Next Favorite</h2>
@@ -136,7 +180,19 @@ const Index = () => {
             </p>
           </div>
           
-          <SearchBar onSearch={handleSearch} onFilterClick={handleFilterClick} />
+          <SearchBar 
+            onSearch={handleSearch} 
+            onFilterClick={handleFilterClick}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            isFiltersOpen={isFiltersOpen}
+            onFiltersClose={() => setIsFiltersOpen(false)}
+          />
+          
+          {/* Temporary API Test Button */}
+          <div className="mt-8">
+            <ApiTestButton />
+          </div>
         </div>
       </section>
 
@@ -152,14 +208,22 @@ const Index = () => {
               <h2 className="text-3xl font-bold">Featured Movies</h2>
             </div>
             
-            <Button variant="ghost" className="text-primary hover:text-primary-glow">
-              View All →
-            </Button>
+            <Link to="/discover">
+              <Button variant="ghost" className="text-primary hover:text-primary-glow">
+                View All →
+              </Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {featuredMovies.map((movie, index) => (
-              <MovieCard key={index} {...movie} />
+            {featuredMovies.map((movie) => (
+              <MovieCard 
+                key={movie.id} 
+                {...movie}
+                onMovieClick={handleMovieClick}
+                onLikeToggle={handleLikeToggle}
+                onBookmarkToggle={handleBookmarkToggle}
+              />
             ))}
           </div>
         </div>
@@ -196,12 +260,66 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Search Results */}
+      {searchQuery && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <h2 className="text-3xl font-bold">Search Results</h2>
+                <p className="text-muted-foreground">
+                  {isSearching ? (
+                    "Searching..."
+                  ) : (
+                    `Found ${searchResults.length} movies for "${searchQuery}"`
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {isSearching ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground text-lg">Searching movies...</p>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                {searchResults.map((movie) => (
+                  <MovieCard 
+                    key={movie.id} 
+                    {...movie}
+                    onMovieClick={handleMovieClick}
+                    onLikeToggle={handleLikeToggle}
+                    onBookmarkToggle={handleBookmarkToggle}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  No movies found for "{searchQuery}". Try adjusting your search or filters.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Movie Details Modal */}
+      <MovieDetailsModal
+        movie={selectedMovie}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onLikeToggle={handleLikeToggle}
+        onBookmarkToggle={handleBookmarkToggle}
+      />
+
       {/* Footer */}
       <footer className="border-t border-border/50 py-12 bg-card/10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center">
             <p className="text-muted-foreground">
-              © 2024 Flimm Fiesta. Made with ❤️ for movie lovers everywhere.
+              © 2024 Cineverse. Made with ❤️ for movie lovers everywhere.
             </p>
           </div>
         </div>

@@ -1,73 +1,214 @@
-# Welcome to your Lovable project
+# Cineverse - Movie Rating & Discovery Platform
 
-## Project info
+A modern, responsive movie rating and discovery platform built with React, TypeScript, and Tailwind CSS. Rate movies, discover new films, and manage your personal movie collection.
 
-**URL**: https://lovable.dev/projects/10f29fab-db9a-4c3e-8f2c-12c701eff5e4
+## ✨ Features
 
-## How can I edit this code?
+### 🎯 Core Functionality
 
-There are several ways of editing your application.
+- **Star Rating System**: Rate movies from 1-10 stars with interactive star interface
+- **Browse Collection**: Explore movies by genre, year, and rating filters
+- **Search**: Search for movies by title, director, actors, or genre
+- **Filter**: Advanced filtering by genre, year, and minimum rating
+- **Profile**: Personal profile with ratings, liked movies, and statistics
 
-**Use Lovable**
+### 🎬 Movie Management
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/10f29fab-db9a-4c3e-8f2c-12c701eff5e4) and start prompting.
+- **Like Movies**: Heart movies you love
+- **Bookmark Movies**: Save movies to watch later
+- **Movie Details**: Detailed movie information with cast, crew, and synopsis
+- **Personal Collections**: View your rated, liked, and saved movies
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🎨 User Interface
 
-**Use your preferred IDE**
+- **Modern Design**: Beautiful, responsive design with cinematic aesthetics
+- **Dark Theme**: Elegant dark theme optimized for movie viewing
+- **Smooth Animations**: Smooth transitions and hover effects
+- **Mobile Responsive**: Works perfectly on all device sizes
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v16 or higher)
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd cineverse-front-end
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Install dependencies:
+```bash
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📱 How to Use
 
-## What technologies are used for this project?
+### Home Page
+- **Hero Section**: Welcome to Cineverse with call-to-action buttons
+- **Search Section**: Search for movies and apply filters
+- **Featured Movies**: Trending movies displayed in a grid
+- **Statistics**: Platform statistics and achievements
 
-This project is built with:
+### Discover Page
+- **Genre Filter**: Browse movies by genre using filter buttons
+- **Movie Grid**: Responsive grid layout showing all movies
+- **Sorting**: Movies sorted by rating for easy discovery
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### My Lists Page
+- **Tabs**: Switch between Liked Movies and Saved Movies
+- **Statistics**: Overview of your movie collections
+- **Empty States**: Helpful messages when collections are empty
 
-## How can I deploy this project?
+### Profile Page
+- **User Info**: Profile picture, name, and member information
+- **Statistics Cards**: Total ratings, liked movies, saved movies, and average rating
+- **Collections**: Tabs for My Ratings, Liked Movies, and Saved Movies
+- **Settings**: Access to profile settings (placeholder)
 
-Simply open [Lovable](https://lovable.dev/projects/10f29fab-db9a-4c3e-8f2c-12c701eff5e4) and click on Share -> Publish.
+### Movie Details Modal
+- **Movie Information**: Complete movie details including synopsis, cast, and crew
+- **Rating System**: Interactive 1-10 star rating system
+- **Actions**: Like and bookmark movies directly from the modal
+- **Community Rating**: See the overall community rating
 
-## Can I connect a custom domain to my Lovable project?
+## 🎯 Feature Details
 
-Yes, you can!
+### Star Rating System
+- Click on stars to rate movies from 1-10
+- Hover effects show preview of rating
+- Ratings are saved to localStorage
+- Personal ratings are displayed on movie cards
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Search & Filter
+- **Search**: Real-time search across movie titles, directors, actors, and genres
+- **Genre Filter**: Filter by specific genres (Action, Sci-Fi, Drama, etc.)
+- **Year Filter**: Filter by release year
+- **Rating Filter**: Filter by minimum rating (0-10)
+- **Combined Filters**: Use multiple filters simultaneously
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Movie Collections
+- **Liked Movies**: Movies you've hearted
+- **Saved Movies**: Movies you've bookmarked for later
+- **Rated Movies**: Movies you've given star ratings to
+- **Persistent Storage**: All data saved in browser localStorage
+
+### Responsive Design
+- **Mobile First**: Optimized for mobile devices
+- **Tablet Friendly**: Great experience on tablets
+- **Desktop Optimized**: Full-featured desktop experience
+- **Touch Friendly**: Optimized for touch interactions
+
+## 🛠️ Technical Stack
+
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Radix UI primitives with custom styling
+- **Routing**: React Router DOM
+- **State Management**: React hooks and localStorage
+- **Build Tool**: Vite
+- **Icons**: Lucide React
+- **Animations**: Tailwind CSS animations
+
+## 🎨 Design System
+
+### Colors
+- **Primary**: Golden cinema theme (#F59E0B)
+- **Secondary**: Rich purple (#8B5CF6)
+- **Accent**: Fiesta red (#EF4444)
+- **Background**: Dark cinematic theme
+- **Cards**: Subtle gradients and shadows
+
+### Typography
+- **Headings**: Bold, cinematic typography
+- **Body**: Clean, readable text
+- **Gradients**: Text gradients for emphasis
+
+### Components
+- **Cards**: Movie cards with hover effects
+- **Buttons**: Gradient and outline variants
+- **Modals**: Full-featured movie detail modals
+- **Tabs**: Clean tab navigation
+- **Forms**: Search and filter forms
+
+## 📊 Data Management
+
+### Local Storage
+- User ratings
+- Liked movies
+- Bookmarked movies
+- Persistent across browser sessions
+
+### Sample Data
+- 10 sample movies with complete information
+- Realistic movie data including posters, cast, and descriptions
+- Multiple genres and years represented
+
+## 🔧 Customization
+
+### Adding Movies
+Edit `src/lib/movieService.ts` to add more movies to the sample data.
+
+### Styling
+Modify `src/index.css` to customize the design system colors and variables.
+
+### Components
+All UI components are in `src/components/ui/` and can be customized as needed.
+
+## 🚀 Deployment
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Deploy to Vercel
+1. Connect your repository to Vercel
+2. Vercel will automatically detect the Vite configuration
+3. Deploy with default settings
+
+### Deploy to Netlify
+1. Build the project: `npm run build`
+2. Upload the `dist` folder to Netlify
+3. Configure build settings if needed
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- **Unsplash** for movie poster images
+- **Radix UI** for accessible component primitives
+- **Tailwind CSS** for the utility-first CSS framework
+- **Lucide** for beautiful icons
+
+---
+
+Made with ❤️ for movie lovers everywhere.

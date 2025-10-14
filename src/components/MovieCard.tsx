@@ -2,19 +2,16 @@ import { Star, Heart, Bookmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Movie, MovieService } from "@/lib/movieService";
 
-interface MovieCardProps {
-  title: string;
-  year: number;
-  genre: string;
-  rating: number;
-  userRating?: number;
-  poster: string;
-  isLiked?: boolean;
-  isBookmarked?: boolean;
+interface MovieCardProps extends Movie {
+  onMovieClick?: (movie: Movie) => void;
+  onLikeToggle?: (movieId: string) => void;
+  onBookmarkToggle?: (movieId: string) => void;
 }
 
 export const MovieCard = ({
+  id,
   title,
   year,
   genre,
@@ -23,12 +20,49 @@ export const MovieCard = ({
   poster,
   isLiked = false,
   isBookmarked = false,
+  onMovieClick,
+  onLikeToggle,
+  onBookmarkToggle,
 }: MovieCardProps) => {
   const [liked, setLiked] = useState(isLiked);
   const [bookmarked, setBookmarked] = useState(isBookmarked);
 
+  const handleLikeToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newLiked = !liked;
+    setLiked(newLiked);
+    MovieService.toggleLike(id);
+    onLikeToggle?.(id);
+  };
+
+  const handleBookmarkToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newBookmarked = !bookmarked;
+    setBookmarked(newBookmarked);
+    MovieService.toggleBookmark(id);
+    onBookmarkToggle?.(id);
+  };
+
+  const handleMovieClick = () => {
+    const movie: Movie = {
+      id,
+      title,
+      year,
+      genre,
+      rating,
+      userRating,
+      poster,
+      isLiked: liked,
+      isBookmarked: bookmarked,
+    };
+    onMovieClick?.(movie);
+  };
+
   return (
-    <Card className="group relative overflow-hidden bg-gradient-card border-border hover:border-primary/30 transition-all duration-300 hover:shadow-card hover:scale-105 cursor-pointer">
+    <Card 
+      className="group relative overflow-hidden bg-gradient-card border-border hover:border-primary/30 transition-all duration-300 hover:shadow-card hover:scale-105 cursor-pointer"
+      onClick={handleMovieClick}
+    >
       <div className="aspect-[2/3] relative overflow-hidden">
         <img
           src={poster}
@@ -43,10 +77,7 @@ export const MovieCard = ({
             size="sm"
             variant="secondary"
             className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLiked(!liked);
-            }}
+            onClick={handleLikeToggle}
           >
             <Heart 
               className={`h-4 w-4 ${liked ? 'fill-accent text-accent' : 'text-foreground'}`} 
@@ -56,10 +87,7 @@ export const MovieCard = ({
             size="sm"
             variant="secondary"
             className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
-            onClick={(e) => {
-              e.stopPropagation();
-              setBookmarked(!bookmarked);
-            }}
+            onClick={handleBookmarkToggle}
           >
             <Bookmark 
               className={`h-4 w-4 ${bookmarked ? 'fill-primary text-primary' : 'text-foreground'}`} 
