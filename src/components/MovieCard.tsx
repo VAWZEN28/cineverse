@@ -4,26 +4,53 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Movie, MovieService } from "@/lib/movieService";
 
-interface MovieCardProps extends Movie {
+interface MovieCardProps {
+  movie: Movie;
+  compact?: boolean;
+  showQuickActions?: boolean;
   onMovieClick?: (movie: Movie) => void;
   onLikeToggle?: (movieId: string) => void;
   onBookmarkToggle?: (movieId: string) => void;
 }
 
-export const MovieCard = ({
-  id,
-  title,
-  year,
-  genre,
-  rating,
-  userRating,
-  poster,
-  isLiked = false,
-  isBookmarked = false,
-  onMovieClick,
-  onLikeToggle,
-  onBookmarkToggle,
-}: MovieCardProps) => {
+// Legacy interface for backward compatibility
+interface LegacyMovieCardProps extends Movie {
+  onMovieClick?: (movie: Movie) => void;
+  onLikeToggle?: (movieId: string) => void;
+  onBookmarkToggle?: (movieId: string) => void;
+}
+
+export const MovieCard = (props: MovieCardProps | LegacyMovieCardProps) => {
+  // Handle both new and legacy prop structures
+  const isLegacy = 'id' in props;
+  
+  const {
+    movie,
+    compact = false,
+    showQuickActions = true,
+    onMovieClick,
+    onLikeToggle,
+    onBookmarkToggle,
+  } = isLegacy ? {
+    movie: props as Movie,
+    compact: false,
+    showQuickActions: true,
+    onMovieClick: props.onMovieClick,
+    onLikeToggle: props.onLikeToggle,
+    onBookmarkToggle: props.onBookmarkToggle,
+  } : props as MovieCardProps;
+  
+  const {
+    id,
+    title,
+    year,
+    genre,
+    rating,
+    userRating,
+    poster,
+    isLiked = false,
+    isBookmarked = false,
+  } = movie;
   const [liked, setLiked] = useState(isLiked);
   const [bookmarked, setBookmarked] = useState(isBookmarked);
 
@@ -44,18 +71,12 @@ export const MovieCard = ({
   };
 
   const handleMovieClick = () => {
-    const movie: Movie = {
-      id,
-      title,
-      year,
-      genre,
-      rating,
-      userRating,
-      poster,
+    const movieData: Movie = {
+      ...movie,
       isLiked: liked,
       isBookmarked: bookmarked,
     };
-    onMovieClick?.(movie);
+    onMovieClick?.(movieData);
   };
 
   return (
@@ -72,28 +93,30 @@ export const MovieCard = ({
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Action buttons */}
-        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button
-            size="sm"
-            variant="secondary"
-            className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
-            onClick={handleLikeToggle}
-          >
-            <Heart 
-              className={`h-4 w-4 ${liked ? 'fill-accent text-accent' : 'text-foreground'}`} 
-            />
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
-            onClick={handleBookmarkToggle}
-          >
-            <Bookmark 
-              className={`h-4 w-4 ${bookmarked ? 'fill-primary text-primary' : 'text-foreground'}`} 
-            />
-          </Button>
-        </div>
+        {showQuickActions && (
+          <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
+              onClick={handleLikeToggle}
+            >
+              <Heart 
+                className={`h-4 w-4 ${liked ? 'fill-accent text-accent' : 'text-foreground'}`} 
+              />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0 bg-background/80 hover:bg-background border-border/50"
+              onClick={handleBookmarkToggle}
+            >
+              <Bookmark 
+                className={`h-4 w-4 ${bookmarked ? 'fill-primary text-primary' : 'text-foreground'}`} 
+              />
+            </Button>
+          </div>
+        )}
 
         {/* Rating badge */}
         <div className="absolute top-3 left-3">
@@ -104,12 +127,16 @@ export const MovieCard = ({
         </div>
       </div>
 
-      <div className="p-4">
-        <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+      <div className={compact ? "p-2" : "p-4"}>
+        <h3 className={`font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors ${
+          compact ? 'text-sm' : 'text-base'
+        }`}>
           {title}
         </h3>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-sm text-muted-foreground">{year} • {genre}</p>
+          <p className={`text-muted-foreground ${
+            compact ? 'text-xs' : 'text-sm'
+          }`}>{year} • {genre}</p>
           {userRating && (
             <div className="flex items-center gap-1">
               <Star className="h-3 w-3 fill-accent text-accent" />

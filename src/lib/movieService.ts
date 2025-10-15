@@ -274,8 +274,19 @@ export class MovieService {
       console.error('❌ Error searching movies from TMDB:', error);
       console.log('🔄 Falling back to local search...');
       
-      // Fallback to local search
-      const movies = await this.getAllMovies();
+      // Fallback to local search with extendedMovies directly
+      console.log('🔄 Using local extendedMovies array for fallback');
+      const userRatings = getStoredData(STORAGE_KEYS.USER_RATINGS);
+      const likedMovies = getStoredData(STORAGE_KEYS.LIKED_MOVIES);
+      const bookmarkedMovies = getStoredData(STORAGE_KEYS.BOOKMARKED_MOVIES);
+
+      const movies = extendedMovies.map(movie => ({
+        ...movie,
+        userRating: userRatings[movie.id] || movie.userRating,
+        isLiked: likedMovies[movie.id] || movie.isLiked || false,
+        isBookmarked: bookmarkedMovies[movie.id] || movie.isBookmarked || false
+      }));
+      
       const lowerQuery = query.toLowerCase();
 
       const filteredMovies = movies.filter(movie => {
@@ -287,7 +298,9 @@ export class MovieService {
           movie.genre.toLowerCase().includes(lowerQuery);
 
         // Filter by genre
-        const matchesGenre = !filters?.genre || movie.genre === filters.genre;
+        const matchesGenre = !filters?.genre || 
+          movie.genre.toLowerCase() === filters.genre.toLowerCase() ||
+          movie.genre.toLowerCase().includes(filters.genre.toLowerCase());
 
         // Filter by year
         const matchesYear = !filters?.year || movie.year === filters.year;
@@ -298,7 +311,14 @@ export class MovieService {
         return matchesQuery && matchesGenre && matchesYear && matchesRating;
       });
       
-      console.log('🔄 Local search results:', filteredMovies.length, 'movies');
+      console.log('🔄 Local search results:', filteredMovies.length, 'movies from', movies.length, 'total local movies');
+      
+      // If no results found with filters, return some movies anyway
+      if (filteredMovies.length === 0 && query) {
+        console.log('🔄 No filtered results, returning top-rated local movies');
+        return movies.sort((a, b) => b.rating - a.rating).slice(0, 5);
+      }
+      
       return filteredMovies;
     }
   }
